@@ -13,7 +13,7 @@ namespace RentABikeWebApp.Data
                 var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
 
                 context.Database.EnsureCreated();
-                if (context.Bikes.Any())
+                if (!context.Bikes.Any())
                 {
                     var bikesToAdd = new List<Bike>
             {
@@ -27,19 +27,7 @@ namespace RentABikeWebApp.Data
                     context.SaveChanges();
                 }
 
-                if (context.Reservations.Any())
-                {
-                    var reservationsToAdd = new List<Reservation>
-            {
-                new Reservation { StartDate = DateTime.Now.AddDays(1), EndDate = DateTime.Now.AddDays(3), TotalCost = 45, BikeId = 1, CustomerId = 1 },
-                new Reservation { StartDate = DateTime.Now.AddDays(2), EndDate = DateTime.Now.AddDays(4), TotalCost = 36, BikeId = 2, CustomerId = 2 },
-                new Reservation { StartDate = DateTime.Now.AddDays(3), EndDate = DateTime.Now.AddDays(5), TotalCost = 60, BikeId = 3, CustomerId = 3 }
-            };
-                    context.Reservations.AddRange(reservationsToAdd);
-                    context.SaveChanges();
-                }
-
-                if (context.Customers.Any())
+                if (!context.Customers.Any())
                 {
                     var customersToAdd = new List<Customer>
             {
@@ -53,6 +41,18 @@ namespace RentABikeWebApp.Data
 
 
                 }
+                if (!context.Reservations.Any())
+                {
+                    var reservationsToAdd = new List<Reservation>
+            {
+                new Reservation { StartDate = DateTime.Now.AddDays(1), EndDate = DateTime.Now.AddDays(3), TotalCost = 45, BikeId = 1, CustomerId = 1 },
+                new Reservation { StartDate = DateTime.Now.AddDays(2), EndDate = DateTime.Now.AddDays(4), TotalCost = 36, BikeId = 2, CustomerId = 2 },
+                new Reservation { StartDate = DateTime.Now.AddDays(3), EndDate = DateTime.Now.AddDays(5), TotalCost = 60, BikeId = 3, CustomerId = 3 }
+            };
+                    context.Reservations.AddRange(reservationsToAdd);
+                    context.SaveChanges();
+                }
+
             }
         }
 
