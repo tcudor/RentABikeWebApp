@@ -34,7 +34,7 @@ namespace RentABikeWebApp.Controllers
             }
 
             var bike = await _context.Bikes
-                .FirstOrDefaultAsync(m => m.BikeId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (bike == null)
             {
                 return NotFound();
@@ -54,7 +54,7 @@ namespace RentABikeWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BikeId,Type,PricePerHour,Status,Image")] Bike bike)
+        public async Task<IActionResult> Create([Bind("Id,Type,PricePerHour,Status,Image")] Bike bike)
         {
             if (ModelState.IsValid)
             {
@@ -86,9 +86,9 @@ namespace RentABikeWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BikeId,Type,PricePerHour,Status,Image")] Bike bike)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Type,PricePerHour,Status,Image")] Bike bike)
         {
-            if (id != bike.BikeId)
+            if (id != bike.Id)
             {
                 return NotFound();
             }
@@ -102,7 +102,7 @@ namespace RentABikeWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BikeExists(bike.BikeId))
+                    if (!BikeExists(bike.Id))
                     {
                         return NotFound();
                     }
@@ -125,7 +125,7 @@ namespace RentABikeWebApp.Controllers
             }
 
             var bike = await _context.Bikes
-                .FirstOrDefaultAsync(m => m.BikeId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (bike == null)
             {
                 return NotFound();
@@ -151,7 +151,7 @@ namespace RentABikeWebApp.Controllers
 
         private bool BikeExists(int id)
         {
-            return _context.Bikes.Any(e => e.BikeId == id);
+            return _context.Bikes.Any(e => e.Id == id);
         }
     }
 }

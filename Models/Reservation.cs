@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using RentABikeWebApp.Data.Base;
+using System.ComponentModel.DataAnnotations;
 
 namespace RentABikeWebApp.Models
 {
-    public class Reservation
+    public class Reservation : IEntityBase
     {
         [Key]
-        public int ReservationId { get; set; }
+        public int Id { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public decimal TotalCost { get; set; }

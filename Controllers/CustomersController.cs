@@ -34,7 +34,7 @@ namespace RentABikeWebApp.Controllers
             }
 
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (customer == null)
             {
                 return NotFound();
@@ -54,7 +54,7 @@ namespace RentABikeWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CustomerId,Name,Email,Phone,IdCode,IdSeries")] Customer customer)
+        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,IdCode,IdSeries")] Customer customer)
         {
             if (ModelState.IsValid)
             {
@@ -86,9 +86,9 @@ namespace RentABikeWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CustomerId,Name,Email,Phone,IdCode,IdSeries")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,IdCode,IdSeries")] Customer customer)
         {
-            if (id != customer.CustomerId)
+            if (id != customer.Id)
             {
                 return NotFound();
             }
@@ -102,7 +102,7 @@ namespace RentABikeWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CustomerExists(customer.CustomerId))
+                    if (!CustomerExists(customer.Id))
                     {
                         return NotFound();
                     }
@@ -125,7 +125,7 @@ namespace RentABikeWebApp.Controllers
             }
 
             var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.CustomerId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (customer == null)
             {
                 return NotFound();
@@ -151,7 +151,7 @@ namespace RentABikeWebApp.Controllers
 
         private bool CustomerExists(int id)
         {
-            return _context.Customers.Any(e => e.CustomerId == id);
+            return _context.Customers.Any(e => e.Id == id);
         }
     }
 }

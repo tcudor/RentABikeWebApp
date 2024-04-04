@@ -37,7 +37,7 @@ namespace RentABikeWebApp.Controllers
             var reservation = await _context.Reservations
                 .Include(r => r.Bike)
                 .Include(r => r.Customer)
-                .FirstOrDefaultAsync(m => m.ReservationId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (reservation == null)
             {
                 return NotFound();
@@ -49,8 +49,8 @@ namespace RentABikeWebApp.Controllers
         // GET: Reservations/Create
         public IActionResult Create()
         {
-            ViewData["BikeId"] = new SelectList(_context.Bikes, "BikeId", "BikeId");
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId");
+            ViewData["Id"] = new SelectList(_context.Bikes, "Id", "Id");
+            ViewData["Id"] = new SelectList(_context.Customers, "Id", "Id");
             return View();
         }
 
@@ -59,7 +59,7 @@ namespace RentABikeWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReservationId,StartDate,EndDate,TotalCost,BikeId,CustomerId")] Reservation reservation)
+        public async Task<IActionResult> Create([Bind("Id,StartDate,EndDate,TotalCost,Id,Id")] Reservation reservation)
         {
             if (ModelState.IsValid)
             {
@@ -67,8 +67,8 @@ namespace RentABikeWebApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BikeId"] = new SelectList(_context.Bikes, "BikeId", "BikeId", reservation.BikeId);
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", reservation.CustomerId);
+            ViewData["Id"] = new SelectList(_context.Bikes, "Id", "Id", reservation.Id);
+            ViewData["Id"] = new SelectList(_context.Customers, "Id", "Id", reservation.Id);
             return View(reservation);
         }
 
@@ -85,8 +85,8 @@ namespace RentABikeWebApp.Controllers
             {
                 return NotFound();
             }
-            ViewData["BikeId"] = new SelectList(_context.Bikes, "BikeId", "BikeId", reservation.BikeId);
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", reservation.CustomerId);
+            ViewData["Id"] = new SelectList(_context.Bikes, "Id", "Id", reservation.Id);
+            ViewData["Id"] = new SelectList(_context.Customers, "Id", "Id", reservation.Id);
             return View(reservation);
         }
 
@@ -95,9 +95,9 @@ namespace RentABikeWebApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ReservationId,StartDate,EndDate,TotalCost,BikeId,CustomerId")] Reservation reservation)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,StartDate,EndDate,TotalCost,Id,Id")] Reservation reservation)
         {
-            if (id != reservation.ReservationId)
+            if (id != reservation.Id)
             {
                 return NotFound();
             }
@@ -111,7 +111,7 @@ namespace RentABikeWebApp.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReservationExists(reservation.ReservationId))
+                    if (!ReservationExists(reservation.Id))
                     {
                         return NotFound();
                     }
@@ -122,8 +122,8 @@ namespace RentABikeWebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BikeId"] = new SelectList(_context.Bikes, "BikeId", "BikeId", reservation.BikeId);
-            ViewData["CustomerId"] = new SelectList(_context.Customers, "CustomerId", "CustomerId", reservation.CustomerId);
+            ViewData["Id"] = new SelectList(_context.Bikes, "Id", "Id", reservation.Id);
+            ViewData["Id"] = new SelectList(_context.Customers, "Id", "Id", reservation.Id);
             return View(reservation);
         }
 
@@ -138,7 +138,7 @@ namespace RentABikeWebApp.Controllers
             var reservation = await _context.Reservations
                 .Include(r => r.Bike)
                 .Include(r => r.Customer)
-                .FirstOrDefaultAsync(m => m.ReservationId == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (reservation == null)
             {
                 return NotFound();
@@ -164,7 +164,7 @@ namespace RentABikeWebApp.Controllers
 
         private bool ReservationExists(int id)
         {
-            return _context.Reservations.Any(e => e.ReservationId == id);
+            return _context.Reservations.Any(e => e.Id == id);
         }
     }
 }

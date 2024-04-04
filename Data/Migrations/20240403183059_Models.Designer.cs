@@ -229,11 +229,11 @@ namespace RentABikeWebApp.Data.Migrations
 
             modelBuilder.Entity("RentABikeWebApp.Models.Bike", b =>
                 {
-                    b.Property<int>("BikeId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BikeId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
@@ -247,18 +247,18 @@ namespace RentABikeWebApp.Data.Migrations
                     b.Property<int?>("Type")
                         .HasColumnType("int");
 
-                    b.HasKey("BikeId");
+                    b.HasKey("Id");
 
                     b.ToTable("Bikes");
                 });
 
             modelBuilder.Entity("RentABikeWebApp.Models.Customer", b =>
                 {
-                    b.Property<int>("CustomerId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -275,23 +275,23 @@ namespace RentABikeWebApp.Data.Migrations
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("CustomerId");
+                    b.HasKey("Id");
 
                     b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("RentABikeWebApp.Models.Reservation", b =>
                 {
-                    b.Property<int>("ReservationId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReservationId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BikeId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("CustomerId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("EndDate")
@@ -303,11 +303,11 @@ namespace RentABikeWebApp.Data.Migrations
                     b.Property<decimal>("TotalCost")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("ReservationId");
+                    b.HasKey("Id");
 
-                    b.HasIndex("BikeId");
+                    b.HasIndex("Id");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("Id");
 
                     b.ToTable("Reservations");
                 });
@@ -367,13 +367,13 @@ namespace RentABikeWebApp.Data.Migrations
                 {
                     b.HasOne("RentABikeWebApp.Models.Bike", "Bike")
                         .WithMany("Reservations")
-                        .HasForeignKey("BikeId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RentABikeWebApp.Models.Customer", "Customer")
                         .WithMany("Reservations")
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
