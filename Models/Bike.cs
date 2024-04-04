@@ -1,12 +1,13 @@
 ﻿using RentABikeWebApp.Data;
+using RentABikeWebApp.Data.Base;
 using System.ComponentModel.DataAnnotations;
 
 namespace RentABikeWebApp.Models
 {
-    public class Bike
+    public class Bike : IEntityBase
     {
         [Key]
-        public int BikeId { get; set; }
+        public int Id { get; set; }
         public BikeType? Type { get; set; }
         public decimal PricePerHour { get; set; }
         public string? Status { get; set; }
