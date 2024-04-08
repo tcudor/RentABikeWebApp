@@ -6,152 +6,113 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RentABikeWebApp.Data;
+using RentABikeWebApp.Data.Services;
 using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Controllers
 {
     public class BikesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IBikesService _service;
 
-        public BikesController(ApplicationDbContext context)
+        public BikesController(IBikesService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: Bikes
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Bikes.ToListAsync());
+            var allBikes = await _service.GetAllAsync();
+            return View(allBikes);
         }
 
-        // GET: Bikes/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var bike = await _context.Bikes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (bike == null)
-            {
-                return NotFound();
-            }
-
-            return View(bike);
-        }
-
-        // GET: Bikes/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Bikes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Type,PricePerHour,Status,Image")] Bike bike)
+        public async Task<IActionResult> Create(Bike Bike, IFormFile imageFile)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(bike);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View(Bike);
             }
-            return View(bike);
-        }
-
-        // GET: Bikes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
+            if (imageFile != null && imageFile.Length > 0)
             {
-                return NotFound();
-            }
-
-            var bike = await _context.Bikes.FindAsync(id);
-            if (bike == null)
-            {
-                return NotFound();
-            }
-            return View(bike);
-        }
-
-        // POST: Bikes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Type,PricePerHour,Status,Image")] Bike bike)
-        {
-            if (id != bike.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                using (var memoryStream = new MemoryStream())
                 {
-                    _context.Update(bike);
-                    await _context.SaveChangesAsync();
+                    await imageFile.CopyToAsync(memoryStream);
+                    Bike.Image = memoryStream.ToArray();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BikeExists(bike.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
             }
-            return View(bike);
-        }
-
-        // GET: Bikes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var bike = await _context.Bikes
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (bike == null)
-            {
-                return NotFound();
-            }
-
-            return View(bike);
-        }
-
-        // POST: Bikes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var bike = await _context.Bikes.FindAsync(id);
-            if (bike != null)
-            {
-                _context.Bikes.Remove(bike);
-            }
-
-            await _context.SaveChangesAsync();
+            await _service.AddAsync(Bike);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool BikeExists(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            return _context.Bikes.Any(e => e.Id == id);
+            var BikeDetails = await _service.GetByIdAsync(id);
+
+            if (BikeDetails == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(BikeDetails);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, Bike Bike, IFormFile imageFile)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(Bike);
+            }
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                using (var memoryStream = new MemoryStream())
+                {
+                    await imageFile.CopyToAsync(memoryStream);
+                    Bike.Image = memoryStream.ToArray();
+                }
+            }
+
+            await _service.UpdateAsync(id, Bike);
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var BikeDetails = await _service.GetByIdAsync(id);
+
+            if (BikeDetails == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(BikeDetails);
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            var BikeDetails = await _service.GetByIdAsync(id);
+
+            if (BikeDetails == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(BikeDetails);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _service.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }

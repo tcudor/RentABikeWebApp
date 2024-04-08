@@ -11,9 +11,11 @@ namespace RentABikeWebApp.Models
         public DateTime EndDate { get; set; }
         public decimal TotalCost { get; set; }
 
+        [Display(Name="Bike")]
         public int BikeId { get; set; }
         public Bike? Bike { get; set; }
 
+        [Display(Name = "Customer")]
         public int CustomerId { get; set; }
         public Customer? Customer { get; set; }
 
