@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RentABikeWebApp.Data;
+using RentABikeWebApp.Data.Services;
 
 namespace RentABikeWebApp
 {
@@ -15,6 +16,9 @@ namespace RentABikeWebApp
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(connectionString));
+            builder.Services.AddScoped<IBikesService, BikesService>();
+            builder.Services.AddScoped<ICustomersService, CustomersService>();
+            builder.Services.AddScoped<IReservationsService, ReservationsService>();
 
             builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddEntityFrameworkStores<ApplicationDbContext>();

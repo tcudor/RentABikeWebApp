@@ -6,152 +6,96 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using RentABikeWebApp.Data;
+using RentABikeWebApp.Data.Services;
 using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Controllers
 {
     public class CustomersController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICustomersService _service;
 
-        public CustomersController(ApplicationDbContext context)
+        public CustomersController(ICustomersService service)
         {
-            _context = context;
+            _service = service;
         }
 
-        // GET: Customers
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Customers.ToListAsync());
+            var allCustomers = await _service.GetAllAsync();
+            return View(allCustomers);
         }
 
-        // GET: Customers/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return View(customer);
-        }
-
-        // GET: Customers/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Customers/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone,IdCode,IdSeries")] Customer customer)
+        public async Task<IActionResult> Create(Customer Customer)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                _context.Add(customer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(customer);
-        }
-
-        // GET: Customers/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
+                return View(Customer);
             }
 
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-            return View(customer);
-        }
-
-        // POST: Customers/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone,IdCode,IdSeries")] Customer customer)
-        {
-            if (id != customer.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(customer);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CustomerExists(customer.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(customer);
-        }
-
-        // GET: Customers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _context.Customers
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return View(customer);
-        }
-
-        // POST: Customers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer != null)
-            {
-                _context.Customers.Remove(customer);
-            }
-
-            await _context.SaveChangesAsync();
+            await _service.AddAsync(Customer);
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CustomerExists(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            var CustomerDetails = await _service.GetByIdAsync(id);
+
+            if (CustomerDetails == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(CustomerDetails);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, Customer Customer)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(Customer);
+            }
+
+            await _service.UpdateAsync(id, Customer);
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var CustomerDetails = await _service.GetByIdAsync(id);
+
+            if (CustomerDetails == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(CustomerDetails);
+        }
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            var CustomerDetails = await _service.GetByIdAsync(id);
+
+            if (CustomerDetails == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(CustomerDetails);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            await _service.DeleteAsync(id);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
