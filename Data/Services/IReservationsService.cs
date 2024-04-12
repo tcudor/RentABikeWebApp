@@ -7,5 +7,6 @@ namespace RentABikeWebApp.Data.Services
     public interface IReservationsService : IEntityBaseRepository<Reservation>
     {
         Task<NewReservationDropdownsVM> GetNewReservationDropdownsValues();
+        Task<bool> IsBikeAvailableAsync(int BikeId, DateTime StartDate, DateTime EndDate);
     }
 }

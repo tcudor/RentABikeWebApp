@@ -6,13 +6,9 @@ using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Data.Services
 {
-    public class ReservationsService : EntityBaseRepository<Reservation>, IReservationsService
+    public class ReservationsService(ApplicationDbContext context) : EntityBaseRepository<Reservation>(context), IReservationsService
     {
-        private readonly ApplicationDbContext _context;
-        public ReservationsService(ApplicationDbContext context) : base(context)
-        {
-            _context = context;
-        }
+        private readonly ApplicationDbContext _context = context;
 
         public override async Task<IEnumerable<Reservation>> GetAllAsync()
         {
@@ -30,5 +26,14 @@ namespace RentABikeWebApp.Data.Services
             };
             return response;
         }
+
+        public async Task<bool> IsBikeAvailableAsync(int BikeId, DateTime StartDate, DateTime EndDate)
+        {
+            return await _context.Reservations
+                .Where(r => r.BikeId == BikeId)
+                .Where(r => (r.StartDate <= StartDate && r.EndDate >= StartDate) || (r.StartDate <= EndDate && r.EndDate >= EndDate))
+                .CountAsync() == 0;
+        }
+
     }
 }

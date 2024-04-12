@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RentABikeWebApp.Data;
 using RentABikeWebApp.Data.Services;
 using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Controllers
 {
-    public class ReservationsController : Controller
+    public class ReservationsController(IReservationsService service) : Controller
     {
-        private readonly IReservationsService _service;
-
-        public ReservationsController(IReservationsService service)
-        {
-            _service = service;
-        }
+        private readonly IReservationsService _service = service;
 
         public async Task<IActionResult> Index()
         {
@@ -34,7 +30,8 @@ namespace RentABikeWebApp.Controllers
             {
                 Text = $"Bike {b.Id} - {b.Type}",
                 Value = b.Id.ToString()
-            }), "Value", "Text"); ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+            }), "Value", "Text");
+            ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
             return View();
 
         }
@@ -45,6 +42,20 @@ namespace RentABikeWebApp.Controllers
             if (!ModelState.IsValid)
             {
                 var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+                ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
+                {
+                    Text = $"Bike {b.Id} - {b.Type}",
+                    Value = b.Id.ToString()
+                }), "Value", "Text");
+                ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+                return View(Reservation);
+            }
+
+            bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate);
+            if (!isBikeAvailable)
+            {
+                var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+                ModelState.AddModelError(string.Empty, "Bike is not available for the selected dates.");
                 ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
                 {
                     Text = $"Bike {b.Id} - {b.Type}",
