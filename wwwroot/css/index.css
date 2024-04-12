@@ -1,0 +1,54 @@
+
+.hero {
+	width: 100vw;
+	height: 75vh;
+	background-size:cover;
+	background-position: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	color: white;
+	text-align: center;
+}
+
+.hero h1 {
+	font-size: 48px;
+	margin-bottom: 16px;
+}
+
+.hero p {
+	font-size: 24px;
+	margin-bottom: 32px;
+}
+
+.button {
+	display: block;
+	width: 200px;
+	height: 40px;
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	margin: 0 auto;
+	transition: transform 0.5s ease-in-out;
+}
+
+	.button:hover {
+		transform: translateY(-5px);
+	}
+
+.scroll-down {
+	position: absolute;
+	bottom: 32px;
+	font-size: 24px;
+	transform: translateY(0);
+	transition: transform 1.5s ease-in-out;
+}
+
+	.scroll-down.animate {
+		transform: translateY(-20px);
+	}
+
