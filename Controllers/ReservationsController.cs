@@ -107,6 +107,20 @@ namespace RentABikeWebApp.Controllers
                 return View(Reservation);
             }
 
+            bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate);
+            if (!isBikeAvailable)
+            {
+                var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+                ModelState.AddModelError(string.Empty, "Bike is not available for the selected dates.");
+                ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
+                {
+                    Text = $"Bike {b.Id} - {b.Type}",
+                    Value = b.Id.ToString()
+                }), "Value", "Text");
+                ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+                return View(Reservation);
+            }
+
             await _service.UpdateAsync(id, Reservation);
             return RedirectToAction(nameof(Index));
         }
