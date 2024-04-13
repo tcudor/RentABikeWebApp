@@ -9,11 +9,11 @@ using RentABikeWebApp.Data;
 
 #nullable disable
 
-namespace RentABikeWebApp.Data.Migrations
+namespace RentABikeWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240404154704_Second")]
-    partial class Second
+    [Migration("20240413153530_First")]
+    partial class First
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -237,8 +237,8 @@ namespace RentABikeWebApp.Data.Migrations
                     b.Property<decimal>("PricePerHour")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int?>("Type")
                         .HasColumnType("int");

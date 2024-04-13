@@ -13,16 +13,17 @@
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="StartDate" class="control-label"></label>
-                <input asp-for="StartDate" class="form-control" />
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate" class="control-label"></label>
-                <input asp-for="EndDate" class="form-control" />
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="StartDate" class="control-label"></label>
+                    <input asp-for="StartDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EndDate" class="control-label"></label>
+                    <input asp-for="EndDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-ddTHH:mm")" />
+                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                </div>
+
             <div class="form-group">
                 <label asp-for="TotalCost" class="control-label"></label>
                 <input asp-for="TotalCost" class="form-control" />
@@ -36,15 +37,33 @@
                 <label asp-for="CustomerId" class="control-label"></label>
                 <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers"></select>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
             <div class="form-group" style="margin-top:1%;">
                 <input type="submit" value="Save" class="btn btn-primary" /> |
                 <a asp-action="Index" class="btn btn-warning">Back to List</a>
             </div>
         </form>
     </div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" role="alert" style="margin-top:2%">
+                @if (ViewData.ModelState.ContainsKey("BikeAvailability"))
+                {
+                    <p>@Html.ValidationMessage("BikeAvailability")</p>
+                }
+                else
+                {
+                    <ul>
+                        @foreach (var key in ViewData.ModelState.Keys)
+                        {
+                            foreach (var error in ViewData.ModelState[key].Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                }
+            </div>
+        }
 </div>
 </div>
 

@@ -8,6 +8,8 @@
 
 <h4>Reservation</h4>
 <hr />
+    <p>Prețul pe oră al bicicletei selectate: @ViewBag.SelectedBikePricePerHour</p>
+
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
@@ -23,26 +25,96 @@
                 <span asp-validation-for="EndDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TotalCost" class="control-label"></label>
-                <input asp-for="TotalCost" class="form-control" />
-                <span asp-validation-for="TotalCost" class="text-danger"></span>
-            </div>
-            <div class="form-group">
                 <label asp-for="BikeId" class="control-label"></label>
                 <select asp-for="BikeId" class="form-control" asp-items="ViewBag.Bikes"></select>
             </div>
+                <div class="form-group">
+                    <label for="PricePerHour" class="control-label">Price Per Hour</label>
+                    <input id="PricePerHour" class="form-control" value="@ViewBag.PricePerHour" readonly />
+                </div>
+                <div class="form-group">
+                    <label asp-for="TotalCost" class="control-label"></label>
+                    <input asp-for="TotalCost" class="form-control" />
+                    <span asp-validation-for="TotalCost" class="text-danger"></span>
+                </div>
             <div class="form-group">
                 <label asp-for="CustomerId" class="control-label"></label>
                 <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers"></select>
             </div>
             <div class="form-group" style="margin-top:1%;">
                 <input type="submit" value="Create" class="btn btn-primary" /> |
-                <a asp-action="Index" class="btn btn-warning">Back to List</a>
+                <a asp-action="Home" asp-controller="Bikes" class="btn btn-warning">Back to List</a>
             </div>
         </form>
     </div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" role="alert" style="margin-top:2%">
+                @if (ViewData.ModelState.ContainsKey("BikeAvailability"))
+                {
+                    <p>@Html.ValidationMessage("BikeAvailability")</p>
+                }
+                else
+                {
+                    <ul>
+                        @foreach (var key in ViewData.ModelState.Keys)
+                        {
+                            foreach (var error in ViewData.ModelState[key].Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                }
+            </div>
+        }
 </div>
 </div>
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.getElementById("BikeId").addEventListener("change", function () {
+            var selectedBikeId = this.value;
+            fetch('/Reservations/GetPricePerHour?BikeId=' + selectedBikeId)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("PricePerHour").value = data.pricePerHour;
+                })
+                .catch(error => {
+                    console.error('A apărut o eroare:', error);
+                });
+        });
+
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            var totalCostInput = document.getElementById("TotalCost");
+            var pricePerHourInput = document.getElementById("PricePerHour");
+            var startDateInput = document.getElementById("StartDate");
+            var endDateInput = document.getElementById("EndDate");
+            document.getElementById("BikeId").addEventListener("change", function () {
+                updateTotalCost();
+            });
+            startDateInput.addEventListener("change", updateTotalCost);
+            endDateInput.addEventListener("change", updateTotalCost);
+
+            function updateTotalCost() {
+                var pricePerHour = pricePerHourInput.value;
+                var startDate = new Date(startDateInput.value);
+                var endDate = new Date(endDateInput.value);
+                var differenceMilliseconds = endDate - startDate;
+                var durationHours = differenceMilliseconds / (1000 * 60 * 60);
+
+                if (!isNaN(pricePerHour) && !isNaN(durationHours)) {
+                    var totalCost = pricePerHour * durationHours;
+                    totalCostInput.value = totalCost.toFixed(2);
+                }
+            }
+        });
+    </script>
 }
+

@@ -6,20 +6,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using RentABikeWebApp.Data;
 using RentABikeWebApp.Data.Services;
 using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Controllers
 {
-    public class ReservationsController : Controller
+    public class ReservationsController(IReservationsService service) : Controller
     {
-        private readonly IReservationsService _service;
-
-        public ReservationsController(IReservationsService service)
-        {
-            _service = service;
-        }
+        private readonly IReservationsService _service = service;
 
         public async Task<IActionResult> Index()
         {
@@ -27,16 +23,21 @@ namespace RentABikeWebApp.Controllers
             return View(allReservations);
         }
 
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create(int BikeId)
         {
-            var reservationDropdownData=await _service.GetNewReservationDropdownsValues();
+            var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
             ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
             {
                 Text = $"Bike {b.Id} - {b.Type}",
-                Value = b.Id.ToString()
-            }), "Value", "Text"); ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
-            return View();
+                Value = b.Id.ToString(),
+                Selected = (b.Id == BikeId)
+            }), "Value", "Text");
 
+            var selectedBike = reservationDropdownData.Bikes.FirstOrDefault(b => b.Id == BikeId);
+            ViewBag.PricePerHour = selectedBike != null ? selectedBike.PricePerHour : 0;
+
+            ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+            return View();
         }
 
         [HttpPost]
@@ -45,6 +46,19 @@ namespace RentABikeWebApp.Controllers
             if (!ModelState.IsValid)
             {
                 var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+                ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
+                {
+                    Text = $"Bike {b.Id} - {b.Type}",
+                    Value = b.Id.ToString()
+                }), "Value", "Text");
+                ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+                return View(Reservation);
+            }
+            bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate);
+            if (!isBikeAvailable)
+            {
+                var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+                ModelState.AddModelError("BikeAvailability", "The selected bike is not available for the specified dates.");
                 ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
                 {
                     Text = $"Bike {b.Id} - {b.Type}",
@@ -96,6 +110,20 @@ namespace RentABikeWebApp.Controllers
                 return View(Reservation);
             }
 
+            bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate, Reservation.Id);
+            if (!isBikeAvailable)
+            {
+                var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+                ModelState.AddModelError("BikeAvailability", "The selected bike is not available for the specified dates.");
+                ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
+                {
+                    Text = $"Bike {b.Id} - {b.Type}",
+                    Value = b.Id.ToString()
+                }), "Value", "Text");
+                ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+                return View(Reservation);
+            }
+
             await _service.UpdateAsync(id, Reservation);
             return RedirectToAction(nameof(Index));
         }
@@ -129,6 +157,18 @@ namespace RentABikeWebApp.Controllers
         {
             await _service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPricePerHourAsync(int bikeId)
+        {
+            var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+            var bike = reservationDropdownData.Bikes.FirstOrDefault(b => b.Id == bikeId);
+            if (bike != null)
+            {
+                return Json(new { bike.PricePerHour });
+            }
+            return BadRequest("Bike not found");
         }
     }
 }

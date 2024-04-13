@@ -23,24 +23,51 @@
             </div>
             <div class="form-group">
                 <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <select asp-for="Status" class="form-control" asp-items="Html.GetEnumSelectList<StatusType>()"></select>
             </div>
-            <div class="form-group">
-                 <label asp-for="Image" class="control-label"></label>
-                 <input type="file" name="imageFile" class="form-control" />
-                 <span asp-validation-for="Image" class="text-danger"></span>
-            </div>
+                    <div class="form-group">
+                        <label asp-for="Image" class="control-label"></label>
+                        <input type="file" name="imageFile" class="form-control" id="imageFileInput" onchange="previewImage(event)" />
+                        <span asp-validation-for="Image" class="text-danger"></span>
+                    </div>
             <div class="form-group" style="margin-top:1%;">
                  <input type="submit" value="Save" class="btn btn-primary" /> |
                  <a asp-action="Index" class="btn btn-warning">Back to List</a>
             </div>
         </form>
     </div>
+    </div>
+        <div class="col-md-8">
+            <div class="text-center" style="margin-top:10%; margin-left:10%">
+                <img id="imagePreview" src="@(Model.Image != null ? "data:image;base64," + Convert.ToBase64String(Model.Image) : "")" alt="Current Image" style="max-width: 100%; max-height: 200px; @(Model.Image != null ? "display: block;" : "display: none;")" />
+            </div>
+        </div>
 </div>
 
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        function previewImage(event) {
+            var imageFile = event.target.files[0];
+            var imagePreview = document.getElementById('imagePreview');
+            var imageFileInput = document.getElementById('imageFileInput');
+
+            if (imageFile) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                };
+
+                reader.readAsDataURL(imageFile);
+            } else {
+
+                imagePreview.style.display = 'none';
+            }
+        }
+    </script>
 }
