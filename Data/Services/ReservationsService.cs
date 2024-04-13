@@ -27,13 +27,20 @@ namespace RentABikeWebApp.Data.Services
             return response;
         }
 
-        public async Task<bool> IsBikeAvailableAsync(int BikeId, DateTime StartDate, DateTime EndDate)
+        public async Task<bool> IsBikeAvailableAsync(int BikeId, DateTime StartDate, DateTime EndDate, int? reservationIdToExclude = null)
         {
-            return await _context.Reservations
+            IQueryable<Reservation> reservationsQuery = _context.Reservations
                 .Where(r => r.BikeId == BikeId)
-                .Where(r => (r.StartDate <= StartDate && r.EndDate >= StartDate) || (r.StartDate <= EndDate && r.EndDate >= EndDate))
-                .CountAsync() == 0;
+                .Where(r => (r.StartDate <= StartDate && r.EndDate >= StartDate) || (r.StartDate <= EndDate && r.EndDate >= EndDate));
+
+            if (reservationIdToExclude.HasValue)
+            {
+                reservationsQuery = reservationsQuery.Where(r => r.Id != reservationIdToExclude);
+            }
+
+            return await reservationsQuery.CountAsync() == 0;
         }
+
 
     }
 }

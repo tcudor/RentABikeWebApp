@@ -41,6 +41,27 @@
             </div>
         </form>
     </div>
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger" role="alert" style="margin-top:2%">
+                @if (ViewData.ModelState.ContainsKey("BikeAvailability"))
+                {
+                    <p>@Html.ValidationMessage("BikeAvailability")</p>
+                }
+                else
+                {
+                    <ul>
+                        @foreach (var key in ViewData.ModelState.Keys)
+                        {
+                            foreach (var error in ViewData.ModelState[key].Errors)
+                            {
+                                <li>@error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                }
+            </div>
+        }
 </div>
 </div>
 @section Scripts {

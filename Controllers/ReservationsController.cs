@@ -67,7 +67,7 @@ namespace RentABikeWebApp.Controllers
             if (!isBikeAvailable)
             {
                 var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
-                ModelState.AddModelError(string.Empty, "Bike is not available for the selected dates.");
+                ModelState.AddModelError("BikeAvailability", "The selected bike is not available for the specified dates.");
                 ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
                 {
                     Text = $"Bike {b.Id} - {b.Type}",
@@ -119,11 +119,11 @@ namespace RentABikeWebApp.Controllers
                 return View(Reservation);
             }
 
-            bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate);
+            bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate, Reservation.Id);
             if (!isBikeAvailable)
             {
                 var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
-                ModelState.AddModelError(string.Empty, "Bike is not available for the selected dates.");
+                ModelState.AddModelError("BikeAvailability", "The selected bike is not available for the specified dates.");
                 ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
                 {
                     Text = $"Bike {b.Id} - {b.Type}",
