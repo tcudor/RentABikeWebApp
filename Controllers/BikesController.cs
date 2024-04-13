@@ -23,12 +23,20 @@ namespace RentABikeWebApp.Controllers
         public async Task<IActionResult> Home()
         {
             var allBikes = await _service.GetAllAsync();
+            foreach (var bike in allBikes)
+            {
+                _service.UpdateBikeStatusBasedOnReservations(bike);
+            }
             return View(allBikes);
         }
 
         public async Task<IActionResult> Index()
         {
             var allBikes = await _service.GetAllAsync();
+            foreach (var bike in allBikes)
+            {
+                _service.UpdateBikeStatusBasedOnReservations(bike);
+            }
             return View(allBikes);
         }
 
@@ -98,17 +106,18 @@ namespace RentABikeWebApp.Controllers
         }
 
 
-        public async Task<IActionResult> Details(int Id)
+        public async Task<IActionResult> Details(int id)
         {
-            var BikeDetails = await _service.GetByIdAsync(Id);
-
-            if (BikeDetails == null)
+            var bikeDetails = await _service.GetByIdAsync(id);
+            if (bikeDetails == null)
             {
-                return View("NotFound");
+                return NotFound();
             }
+            _service.UpdateBikeStatusBasedOnReservations(bikeDetails);
 
-            return View(BikeDetails);
+            return View(bikeDetails);
         }
+
 
         public async Task<IActionResult> Delete(int Id)
         {

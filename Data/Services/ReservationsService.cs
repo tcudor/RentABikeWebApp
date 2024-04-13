@@ -17,6 +17,15 @@ namespace RentABikeWebApp.Data.Services
                 .Include(b => b.Customer)
                 .ToListAsync();
         }
+
+        public override async Task<Reservation> GetByIdAsync(int id)
+        {
+            return await _context.Reservations
+                .Include(b => b.Bike)
+                .Include(b => b.Customer)
+                .FirstOrDefaultAsync(n => n.Id == id);
+        }
+
         public async Task<NewReservationDropdownsVM> GetNewReservationDropdownsValues()
         {
             var response = new NewReservationDropdownsVM()

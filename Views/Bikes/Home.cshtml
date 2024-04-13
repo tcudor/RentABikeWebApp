@@ -20,7 +20,7 @@
                         <h5 class="card-title">@item.DisplayName()</h5>
                         <p class="card-text">Price Per Hour: @item.PricePerHour</p>
                         <p class="card-text">Status: @item.Status</p>
-                        <a href="@Url.Action("CreateWithDefaultBikeId", "Reservations", new { BikeId = item.Id })" class="btn btn-primary">Make reservation</a>
+                        <a href="@Url.Action("Create", "Reservations", new { BikeId = item.Id })" class="btn btn-primary">Make reservation</a>
                     </div>
                 </div>
             </div>

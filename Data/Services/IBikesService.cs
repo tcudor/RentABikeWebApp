@@ -5,5 +5,6 @@ namespace RentABikeWebApp.Data.Services
 {
     public interface IBikesService : IEntityBaseRepository<Bike>
     {
+        void UpdateBikeStatusBasedOnReservations(Bike bike);
     }
 }

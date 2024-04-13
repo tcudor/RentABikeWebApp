@@ -17,11 +17,11 @@ namespace RentABikeWebApp.Data
                 {
                     var bikesToAdd = new List<Bike>
             {
-                new Bike { Type = BikeType.Mountain, PricePerHour = 15, Status = "Available", Image = null },
-                new Bike { Type = BikeType.Simple, PricePerHour = 12, Status = "Available", Image = null },
-                new Bike { Type = BikeType.Double, PricePerHour = 10, Status = "Available", Image = null },
-                new Bike { Type = BikeType.Hybrid, PricePerHour = 20, Status = "Available", Image = null },
-                new Bike { Type = BikeType.Simple, PricePerHour = 8, Status = "Available", Image = null }
+                new Bike { Type = BikeType.Mountain, PricePerHour = 15, Status=StatusType.Available, Image = null},
+                new Bike { Type = BikeType.Simple, PricePerHour = 12, Status=StatusType.Available, Image = null },
+                new Bike { Type = BikeType.Double, PricePerHour = 10, Status=StatusType.Broken, Image = null },
+                new Bike { Type = BikeType.Hybrid, PricePerHour = 20, Status = StatusType.Available, Image = null },
+                new Bike { Type = BikeType.Simple, PricePerHour = 8, Status = StatusType.Broken, Image = null }
             };
                     context.Bikes.AddRange(bikesToAdd);
                     context.SaveChanges();

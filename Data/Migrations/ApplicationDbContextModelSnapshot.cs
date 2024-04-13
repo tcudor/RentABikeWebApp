@@ -8,7 +8,7 @@ using RentABikeWebApp.Data;
 
 #nullable disable
 
-namespace RentABikeWebApp.Data.Migrations
+namespace RentABikeWebApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     partial class ApplicationDbContextModelSnapshot : ModelSnapshot
@@ -234,8 +234,8 @@ namespace RentABikeWebApp.Data.Migrations
                     b.Property<decimal>("PricePerHour")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int?>("Type")
                         .HasColumnType("int");

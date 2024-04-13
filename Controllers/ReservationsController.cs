@@ -22,19 +22,8 @@ namespace RentABikeWebApp.Controllers
             var allReservations = await _service.GetAllAsync();
             return View(allReservations);
         }
-        public async Task<IActionResult> Create()
-        {
-            var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
-            ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
-            {
-                Text = $"Bike {b.Id} - {b.Type}",
-                Value = b.Id.ToString(),
-            }), "Value", "Text");
-            ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
-            return View();
-        }
 
-        public async Task<IActionResult> CreateWithDefaultBikeId(int BikeId)
+        public async Task<IActionResult> Create(int BikeId)
         {
             var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
             ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
@@ -43,10 +32,13 @@ namespace RentABikeWebApp.Controllers
                 Value = b.Id.ToString(),
                 Selected = (b.Id == BikeId)
             }), "Value", "Text");
+
+            var selectedBike = reservationDropdownData.Bikes.FirstOrDefault(b => b.Id == BikeId);
+            ViewBag.PricePerHour = selectedBike != null ? selectedBike.PricePerHour : 0;
+
             ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
             return View();
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Create(Reservation Reservation)
@@ -62,7 +54,6 @@ namespace RentABikeWebApp.Controllers
                 ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
                 return View(Reservation);
             }
-
             bool isBikeAvailable = await _service.IsBikeAvailableAsync(Reservation.BikeId, Reservation.StartDate, Reservation.EndDate);
             if (!isBikeAvailable)
             {
@@ -166,6 +157,18 @@ namespace RentABikeWebApp.Controllers
         {
             await _service.DeleteAsync(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetPricePerHourAsync(int bikeId)
+        {
+            var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+            var bike = reservationDropdownData.Bikes.FirstOrDefault(b => b.Id == bikeId);
+            if (bike != null)
+            {
+                return Json(new { bike.PricePerHour });
+            }
+            return BadRequest("Bike not found");
         }
     }
 }
