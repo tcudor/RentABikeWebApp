@@ -20,6 +20,12 @@ namespace RentABikeWebApp.Controllers
             _service = service;
         }
 
+        public async Task<IActionResult> Home()
+        {
+            var allBikes = await _service.GetAllAsync();
+            return View(allBikes);
+        }
+
         public async Task<IActionResult> Index()
         {
             var allBikes = await _service.GetAllAsync();
@@ -50,9 +56,9 @@ namespace RentABikeWebApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int Id)
         {
-            var BikeDetails = await _service.GetByIdAsync(id);
+            var BikeDetails = await _service.GetByIdAsync(Id);
 
             if (BikeDetails == null)
             {
@@ -63,7 +69,7 @@ namespace RentABikeWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, Bike Bike, IFormFile imageFile)
+        public async Task<IActionResult> Edit(int Id, Bike Bike, IFormFile imageFile)
         {
             if (!ModelState.IsValid)
             {
@@ -78,15 +84,23 @@ namespace RentABikeWebApp.Controllers
                     Bike.Image = memoryStream.ToArray();
                 }
             }
+            else
+            {
+                var existingBike = await _service.GetByIdAsync(Id);
+                if (existingBike != null)
+                {
+                    Bike.Image = existingBike.Image;
+                }
+            }
 
-            await _service.UpdateAsync(id, Bike);
+            await _service.UpdateAsync(Id, Bike);
             return RedirectToAction(nameof(Index));
         }
 
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int Id)
         {
-            var BikeDetails = await _service.GetByIdAsync(id);
+            var BikeDetails = await _service.GetByIdAsync(Id);
 
             if (BikeDetails == null)
             {
@@ -96,9 +110,9 @@ namespace RentABikeWebApp.Controllers
             return View(BikeDetails);
         }
 
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int Id)
         {
-            var BikeDetails = await _service.GetByIdAsync(id);
+            var BikeDetails = await _service.GetByIdAsync(Id);
 
             if (BikeDetails == null)
             {
@@ -109,9 +123,9 @@ namespace RentABikeWebApp.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int Id)
         {
-            await _service.DeleteAsync(id);
+            await _service.DeleteAsync(Id);
             return RedirectToAction(nameof(Index));
         }
     }

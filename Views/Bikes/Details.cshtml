@@ -16,7 +16,7 @@
                 <img src="data:image;base64,@Convert.ToBase64String(Model.Image)" alt="Bike Image" style="height:30em;width:auto" />
             }
             <div class="card-body">
-                <h5 class="card-title">@Model.Type</h5>
+                    <h5 class="card-title">@Model.DisplayName()</h5>
                 <p class="card-text">Price Per Hour: @Model.PricePerHour</p>
                 <p class="card-text">Status: @Model.Status</p>
             </div>

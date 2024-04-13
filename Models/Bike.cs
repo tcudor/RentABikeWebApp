@@ -13,5 +13,9 @@ namespace RentABikeWebApp.Models
         public string? Status { get; set; }
         public byte[]? Image { get; set; } 
         public List<Reservation>? Reservations { get; set; }
+        public string DisplayName ()
+        {
+            return "Bike " + Id + " " + Type;
+        }
     }
 }

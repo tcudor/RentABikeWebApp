@@ -1,0 +1,29 @@
+﻿@model IEnumerable<RentABikeWebApp.Models.Bike>
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="container">
+    <h1 class="text-center mb-5">Bike Rental Service</h1>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    @if (item.Image != null && item.Image.Length > 0)
+                    {
+                        <img src="data:image;base64,@Convert.ToBase64String(item.Image)" alt="Bike Image" class="card-img-top" style="height:20em;object-fit:cover;">
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@item.DisplayName()</h5>
+                        <p class="card-text">Price Per Hour: @item.PricePerHour</p>
+                        <p class="card-text">Status: @item.Status</p>
+                        <a href="@Url.Action("CreateWithDefaultBikeId", "Reservations", new { BikeId = item.Id })" class="btn btn-primary">Make reservation</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

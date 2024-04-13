@@ -22,19 +22,31 @@ namespace RentABikeWebApp.Controllers
             var allReservations = await _service.GetAllAsync();
             return View(allReservations);
         }
-
         public async Task<IActionResult> Create()
         {
-            var reservationDropdownData=await _service.GetNewReservationDropdownsValues();
+            var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
             ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
             {
                 Text = $"Bike {b.Id} - {b.Type}",
-                Value = b.Id.ToString()
+                Value = b.Id.ToString(),
             }), "Value", "Text");
             ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
             return View();
-
         }
+
+        public async Task<IActionResult> CreateWithDefaultBikeId(int BikeId)
+        {
+            var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
+            ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
+            {
+                Text = $"Bike {b.Id} - {b.Type}",
+                Value = b.Id.ToString(),
+                Selected = (b.Id == BikeId)
+            }), "Value", "Text");
+            ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+            return View();
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Create(Reservation Reservation)
