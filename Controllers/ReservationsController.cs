@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Policy;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class ReservationsController(IReservationsService service) : Controller
     {
         private readonly IReservationsService _service = service;
@@ -37,6 +39,9 @@ namespace RentABikeWebApp.Controllers
             ViewBag.PricePerHour = selectedBike != null ? selectedBike.PricePerHour : 0;
 
             ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
+
+            ViewBag.ActiveReservations = await _service.GetActiveReservationsForBikeAsync(BikeId);
+
             return View();
         }
 
@@ -160,15 +165,19 @@ namespace RentABikeWebApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPricePerHourAsync(int bikeId)
+        public async Task<IActionResult> GetDataAsync(int BikeId)
         {
             var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
-            var bike = reservationDropdownData.Bikes.FirstOrDefault(b => b.Id == bikeId);
+            var bike = reservationDropdownData.Bikes.FirstOrDefault(b => b.Id == BikeId);
             if (bike != null)
             {
-                return Json(new { bike.PricePerHour });
+                var pricePerHour = bike.PricePerHour;
+                var activeReservations = await _service.GetActiveReservationsForBikeAsync(BikeId);
+
+                return Json(new { pricePerHour, activeReservations });
             }
             return BadRequest("Bike not found");
         }
+
     }
 }

@@ -6,12 +6,13 @@ namespace RentABikeWebApp.Data.Services
 {
     public class BikesService(ApplicationDbContext context) : EntityBaseRepository<Bike>(context), IBikesService
     {
+        private readonly ApplicationDbContext _context = context;
         public void UpdateBikeStatusBasedOnReservations(Bike bike)
         {
             if (bike.Status != StatusType.Broken)
             {
                 DateTime currentDate = DateTime.Now;
-                bool isActiveReservation = context.Bikes
+                bool isActiveReservation = _context.Bikes
                     .Include(b => b.Reservations)
                     .Where(b => b.Id == bike.Id)
                     .SelectMany(b => b.Reservations)
@@ -26,8 +27,8 @@ namespace RentABikeWebApp.Data.Services
                     bike.Status = StatusType.Available;
                 }
 
-                context.Update(bike);
-                context.SaveChanges();
+                _context.Update(bike);
+                _context.SaveChanges();
             }
         }
 
