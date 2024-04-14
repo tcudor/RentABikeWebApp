@@ -50,6 +50,19 @@ namespace RentABikeWebApp.Data.Services
             return await reservationsQuery.CountAsync() == 0;
         }
 
+        public async Task<IEnumerable<object>> GetActiveReservationsForBikeAsync(int BikeId)
+        {
+            var currentDate = DateTime.Now;
+            var reservations = await _context.Reservations
+                .Where(r => r.BikeId == BikeId && r.StartDate >= currentDate)
+                .ToListAsync();
+
+            return reservations.Select(r => new
+            {
+                StartDate = r.StartDate.ToString("dd/MM/yyyy HH:mm"),
+                EndDate = r.EndDate.ToString("dd/MM/yyyy HH:mm")
+            });
+        }
 
     }
 }

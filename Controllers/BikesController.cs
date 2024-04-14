@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using RentABikeWebApp.Models;
 
 namespace RentABikeWebApp.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class BikesController : Controller
     {
         private readonly IBikesService _service;
@@ -19,7 +21,7 @@ namespace RentABikeWebApp.Controllers
         {
             _service = service;
         }
-
+        [AllowAnonymous]
         public async Task<IActionResult> Home()
         {
             var allBikes = await _service.GetAllAsync();
@@ -111,7 +113,7 @@ namespace RentABikeWebApp.Controllers
             var bikeDetails = await _service.GetByIdAsync(id);
             if (bikeDetails == null)
             {
-                return NotFound();
+                return View("NotFound");
             }
             _service.UpdateBikeStatusBasedOnReservations(bikeDetails);
 
