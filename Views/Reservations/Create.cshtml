@@ -87,36 +87,13 @@
     }
 
     <script>
-        document.getElementById("BikeId").addEventListener("change", function () {
-            var selectedBikeId = this.value;
-            fetch('/Reservations/GetData?BikeId=' + selectedBikeId)
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("PricePerHour").value = data.pricePerHour;
-
-                    var activeReservations = data.activeReservations;
-                    var reservationsList = document.getElementById("reservationList");
-                    reservationsList.innerHTML = "";
-                    activeReservations.forEach(reservation => {
-                        var listItem = document.createElement("li");
-                        listItem.textContent ="Start Date: " + reservation.startDate + "- End Date: " + reservation.endDate;
-                        reservationsList.appendChild(listItem);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-        });
-
-
         document.addEventListener("DOMContentLoaded", function () {
             var totalCostInput = document.getElementById("TotalCost");
             var pricePerHourInput = document.getElementById("PricePerHour");
             var startDateInput = document.getElementById("StartDate");
             var endDateInput = document.getElementById("EndDate");
-            document.getElementById("BikeId").addEventListener("change", function () {
-                updateTotalCost();
-            });
+
+            // Adaugă evenimente pentru schimbarea StartDate și EndDate
             startDateInput.addEventListener("change", updateTotalCost);
             endDateInput.addEventListener("change", updateTotalCost);
 
@@ -132,7 +109,30 @@
                     totalCostInput.value = totalCost.toFixed(2);
                 }
             }
+
+            // Restul codului pentru fetch-ul datelor în cazul schimbării BikeId
+            document.getElementById("BikeId").addEventListener("change", function () {
+                var selectedBikeId = this.value;
+                fetch('/Reservations/GetData?BikeId=' + selectedBikeId)
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById("PricePerHour").value = data.pricePerHour;
+                        var activeReservations = data.activeReservations;
+                        var reservationsList = document.getElementById("reservationList");
+                        reservationsList.innerHTML = "";
+                        activeReservations.forEach(reservation => {
+                            var listItem = document.createElement("li");
+                            listItem.textContent = "Start Date: " + reservation.startDate + "- End Date: " + reservation.endDate;
+                            reservationsList.appendChild(listItem);
+                        });
+                        updateTotalCost(); // Apelăm updateTotalCost() după actualizarea datelor
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            });
         });
+
     </script>
 }
 
