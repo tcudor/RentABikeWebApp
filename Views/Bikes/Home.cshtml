@@ -5,6 +5,7 @@
     ViewData["Title"] = "Home";
 }
 
+
 <div class="container">
     <h1 class="text-center mb-5">Bike Rental Service</h1>
 
@@ -15,9 +16,9 @@
                 <div class="card mb-4 shadow-sm">
                     @if (item.Image != null && item.Image.Length > 0)
                     {
-                        <img src="data:image;base64,@Convert.ToBase64String(item.Image)" alt="Bike Image" class="card-img-top" style="height:20em;object-fit:cover;">
+                        <img src="data:image;base64,@Convert.ToBase64String(item.Image)" alt="Bike Image" class="card-img-top" style="height:20em;object-fit:scale-down;">
                     }
-                    <div class="card-body">
+                    <div class="card-body" style="background-color:lightgray">
                         <h5 class="card-title">@item.DisplayName()</h5>
                         <p class="card-text">Price Per Hour: @item.PricePerHour</p>
                         @if (item.Status == StatusType.Available)

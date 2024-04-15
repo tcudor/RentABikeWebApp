@@ -81,25 +81,14 @@ namespace RentABikeWebApp.Controllers
         {
             var ReservationDetails = await _service.GetByIdAsync(id);
 
-            var response = new Reservation()
+            if (ReservationDetails == null)
             {
-                Id = ReservationDetails.Id,
-                StartDate = ReservationDetails.StartDate,
-                EndDate = ReservationDetails.EndDate,
-                TotalCost = ReservationDetails.TotalCost,
-                BikeId = ReservationDetails.BikeId,
-                CustomerId = ReservationDetails.CustomerId,
-            };
+                return View("NotFound");
+            }
 
-                var reservationDropdownData = await _service.GetNewReservationDropdownsValues();
-                ViewBag.Bikes = new SelectList(reservationDropdownData.Bikes.Select(b => new SelectListItem
-                {
-                    Text = $"Bike {b.Id} - {b.Type}",
-                    Value = b.Id.ToString()
-                }), "Value", "Text"); ViewBag.Customers = new SelectList(reservationDropdownData.Customers, "Id", "Name");
-            
-            return View(response);
+            return View(ReservationDetails);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Edit(int id, Reservation Reservation)
