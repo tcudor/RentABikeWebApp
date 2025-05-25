@@ -1,103 +1,108 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using RentABikeWebApp.Data;
-using RentABikeWebApp.Data.Services;
 using RentABikeWebApp.Models;
+using RentABikeWebApp.Data.Services;
 
-namespace RentABikeWebApp.Controllers
+public class CustomersController : Controller
 {
-    [Authorize(Roles = "Admin")]
-    public class CustomersController : Controller
+    private readonly ICustomersService _service;
+    private readonly UserManager<IdentityUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
+
+    public CustomersController(
+        ICustomersService service,
+        UserManager<IdentityUser> userManager,
+        RoleManager<IdentityRole> roleManager)
     {
-        private readonly ICustomersService _service;
+        _service = service;
+        _userManager = userManager;
+        _roleManager = roleManager;
+    }
 
-        public CustomersController(ICustomersService service)
-        {
-            _service = service;
-        }
+    public async Task<IActionResult> Index()
+    {
+        var allCustomers = await _service.GetAllAsync();
+        return View(allCustomers);
+    }
 
-        public async Task<IActionResult> Index()
-        {
-            var allCustomers = await _service.GetAllAsync();
-            return View(allCustomers);
-        }
+    public IActionResult Create()
+    {
+        return View();
+    }
 
-        public IActionResult Create()
+    [HttpPost]
+    public async Task<IActionResult> Create(Customer customer)
+    {
+        if (!ModelState.IsValid)
+            return View(customer);
+        await _service.AddAsync(customer);
+        if (!string.IsNullOrWhiteSpace(customer.Email))
         {
-            return View();
-        }
+            var tempPassword = "Temp#1234";
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Customer Customer)
-        {
-            if (!ModelState.IsValid)
+            var user = new IdentityUser
             {
-                return View(Customer);
-            }
+                UserName = customer.Email!,
+                Email = customer.Email!
+            };
 
-            await _service.AddAsync(Customer);
-            return RedirectToAction(nameof(Index));
-        }
-
-        public async Task<IActionResult> Edit(int id)
-        {
-            var CustomerDetails = await _service.GetByIdAsync(id);
-
-            if (CustomerDetails == null)
+            var createUserResult = await _userManager.CreateAsync(user, tempPassword);
+            if (createUserResult.Succeeded)
             {
-                return View("NotFound");
+                if (!await _roleManager.RoleExistsAsync("Client"))
+                    await _roleManager.CreateAsync(new IdentityRole("Client"));
+
+                await _userManager.AddToRoleAsync(user, "Client");
+                customer.UserId = user.Id;
+                await _service.UpdateAsync(customer.Id, customer);
             }
-
-            return View(CustomerDetails);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, Customer Customer)
-        {
-            if (!ModelState.IsValid)
+            else
             {
-                return View(Customer);
+                foreach (var error in createUserResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+
+                return View(customer);
             }
-
-            await _service.UpdateAsync(id, Customer);
-            return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Details(int id)
-        {
-            var CustomerDetails = await _service.GetByIdAsync(id);
+        return RedirectToAction(nameof(Index));
+    }
 
-            if (CustomerDetails == null)
-            {
-                return View("NotFound");
-            }
+    public async Task<IActionResult> Edit(int id)
+    {
+        var customer = await _service.GetByIdAsync(id);
+        if (customer == null) return View("NotFound");
+        return View(customer);
+    }
 
-            return View(CustomerDetails);
-        }
+    [HttpPost]
+    public async Task<IActionResult> Edit(int id, Customer customer)
+    {
+        if (!ModelState.IsValid)
+            return View(customer);
 
-        public async Task<IActionResult> Delete(int id)
-        {
-            var CustomerDetails = await _service.GetByIdAsync(id);
+        await _service.UpdateAsync(id, customer);
+        return RedirectToAction(nameof(Index));
+    }
 
-            if (CustomerDetails == null)
-            {
-                return View("NotFound");
-            }
+    public async Task<IActionResult> Details(int id)
+    {
+        var customer = await _service.GetByIdAsync(id);
+        if (customer == null) return View("NotFound");
+        return View(customer);
+    }
 
-            return View(CustomerDetails);
-        }
+    public async Task<IActionResult> Delete(int id)
+    {
+        var customer = await _service.GetByIdAsync(id);
+        if (customer == null) return View("NotFound");
+        return View(customer);
+    }
 
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await _service.DeleteAsync(id);
-            return RedirectToAction(nameof(Index));
-        }
+    [HttpPost, ActionName("Delete")]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        await _service.DeleteAsync(id);
+        return RedirectToAction(nameof(Index));
     }
 }

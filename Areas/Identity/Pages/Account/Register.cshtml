@@ -1,0 +1,70 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">Create your account</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        @if (ViewContext.ModelState.ErrorCount > 0)
+                        {
+                            <div asp-validation-summary="All" class="alert alert-danger"></div>
+                        }
+                        <h5 class="mb-3">Account Info</h5>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Email" class="form-control" placeholder="Email" />
+                            <label asp-for="Input.Email">Email address</label>
+                            <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Password" type="password" class="form-control" placeholder="Password" />
+                            <label asp-for="Input.Password">Password</label>
+                            <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" />
+                            <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                        <h5 class="mb-3">Personal Details</h5>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Name" class="form-control" placeholder="Full Name" />
+                            <label asp-for="Input.Name">Full Name</label>
+                            <span asp-validation-for="Input.Name" class="text-danger small"></span>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Phone" class="form-control" placeholder="Phone Number" />
+                            <label asp-for="Input.Phone">Phone Number</label>
+                            <span asp-validation-for="Input.Phone" class="text-danger small"></span>
+                        </div>
+                        <div class="form-row row gx-2">
+                            <div class="col-md-6 form-floating mb-3">
+                                <input asp-for="Input.IdCode" class="form-control" placeholder="ID Code" />
+                                <label asp-for="Input.IdCode">ID Code</label>
+                                <span asp-validation-for="Input.IdCode" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 form-floating mb-3">
+                                <input asp-for="Input.IdSeries" class="form-control" placeholder="ID Series" />
+                                <label asp-for="Input.IdSeries">ID Series</label>
+                                <span asp-validation-for="Input.IdSeries" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-2">Register</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    Already have an account?
+                    <a asp-page="/Account/Login" class="link-primary">Log in</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,4 +1,5 @@
-﻿using RentABikeWebApp.Data.Base;
+﻿using Microsoft.AspNetCore.Identity;
+using RentABikeWebApp.Data.Base;
 using System.ComponentModel.DataAnnotations;
 
 namespace RentABikeWebApp.Models
@@ -12,6 +13,9 @@ namespace RentABikeWebApp.Models
         public string? Phone { get; set; }
         public string? IdCode { get; set; }
         public string? IdSeries { get; set; }
+
+        public string? UserId { get; set; }
+        public IdentityUser? User { get; set; }
         public List<Reservation>? Reservations { get; set; }
     }
 }
