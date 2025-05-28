@@ -8,11 +8,13 @@ on:
 
 jobs:
   build-test-publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+        
+      - name: Print directory structure
+        run: tree -L 2
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
