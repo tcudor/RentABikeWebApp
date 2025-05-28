@@ -41,7 +41,7 @@ jobs:
 
       - name: Run unit tests
         working-directory: TestsRentABikeWebApp
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --configuration Release --verbosity normal
 
       - name: Publish WebApp
         working-directory: RentABikeWebApp
