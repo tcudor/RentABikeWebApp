@@ -16,7 +16,7 @@ jobs:
       - name: Checkout tests repo
         uses: actions/checkout@v3
         with:
-          repository: ${{ github.repository_owner }}/TestsRentABikeWebApp
+          repository: tcudor/TestsRentABikeWebApp
           path: tests 
           
       - name: Setup .NET 8 SDK
@@ -43,8 +43,4 @@ jobs:
               --configuration Release \
               --output ./publish
               
-      - name: Upload deployment artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: web-app-deploy
-          path: RentABikeWebApp/RentABikeWebApp/deploy
+  
