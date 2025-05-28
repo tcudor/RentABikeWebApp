@@ -9,38 +9,46 @@ on:
 jobs:
   build-test-publish:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout application repo
         uses: actions/checkout@v3
-        
+        with:
+          path: RentABikeWebApp
+
       - name: Checkout tests repo
         uses: actions/checkout@v3
         with:
           repository: tcudor/TestsRentABikeWebApp
-          path: TestsRentABikeWebApp 
-          
+          path: TestsRentABikeWebApp
+
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore dependencies
-        run: |
-          dotnet restore RentABikeWebApp.sln
-          dotnet restore TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
+      - name: Restore main project
+        run: dotnet restore RentABikeWebApp/RentABikeWebApp.csproj
 
-      - name: Build solution
-        run: dotnet build RentABikeWebApp.sln --no-restore --configuration Release
+      - name: Restore test project
+        run: dotnet restore TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
+
+      - name: Build main project
+        run: dotnet build RentABikeWebApp/RentABikeWebApp.csproj --no-restore --configuration Release
 
       - name: Build test project
         run: dotnet build TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
 
       - name: Run unit tests
-        run: dotnet test TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --configuration Release --verbosity normal
+        run: dotnet test TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --verbosity normal
 
       - name: Publish WebApp
-        run: dotnet publish RentABikeWebApp.csproj \
-              --configuration Release \
-              --output ./publish
-              
-  
+        run: dotnet publish RentABikeWebApp/RentABikeWebApp.csproj \
+             --configuration Release \
+             --output ./publish
+
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: RentABikeWebApp-publish
+          path: ./publish
