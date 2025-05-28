@@ -10,7 +10,8 @@ jobs:
   build-test-publish:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
@@ -18,10 +19,10 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore RentABikeWebApp/RentABikeWebApp.sln
 
       - name: Build solution
-        run: dotnet build --no-restore --configuration Release
+        run: dotnet build RentABikeWebApp/RentABikeWebApp.sln --no-restore --configuration Release
         
       - name: List directory tree
         run: |
