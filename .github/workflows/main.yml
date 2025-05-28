@@ -24,7 +24,7 @@ jobs:
         run: dotnet build --no-restore --configuration Release
 
       - name: Run unit tests
-        run: dotnet test ./TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build
+        run: dotnet test ./RentABikeWebApp/TestsRentABikeWebApp.csproj --no-build
 
       - name: Publish WebApp
         run: dotnet publish ./RentABikeWebApp/RentABikeWebApp.csproj \
