@@ -22,7 +22,11 @@ jobs:
 
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
-
+        
+      - name: List directory tree
+        run: |
+          echo "PWD: $(pwd)"
+          ls -R .
       - name: Run unit tests
         run: dotnet test ./TestsRentABikeWebApp.csproj --no-build
 
