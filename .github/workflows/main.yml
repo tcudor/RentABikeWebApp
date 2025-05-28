@@ -26,20 +26,20 @@ jobs:
 
       - name: Restore dependencies
         run: |
-          dotnet restore ./RentABikeWebApp/RentABikeWebApp.csproj
-          dotnet restore ./tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
+          dotnet restore RentABikeWebApp.sln
+          dotnet restore tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
 
       - name: Build solution
-        run: dotnet build RentABikeWebApp/RentABikeWebApp.sln --no-restore --configuration Release
+        run: dotnet build RentABikeWebApp.sln --no-restore --configuration Release
 
       - name: Build test project
-        run: dotnet build ./tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
+        run: dotnet build tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
 
       - name: Run unit tests
-        run: dotnet test ./tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --configuration Release --verbosity normal
+        run: dotnet test tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --configuration Release --verbosity normal
 
       - name: Publish WebApp
-        run: dotnet publish ./RentABikeWebApp/RentABikeWebApp.csproj \
+        run: dotnet publish RentABikeWebApp.csproj \
               --configuration Release \
               --output ./publish
               
