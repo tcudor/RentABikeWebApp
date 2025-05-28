@@ -1,0 +1,39 @@
+name: CI RentABikeWebApp
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Print directory structure
+        run: tree -L 2
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore RentABikeWebApp/RentABikeWebApp.sln
+
+      - name: Build solution
+        run: dotnet build RentABikeWebApp/RentABikeWebApp.sln --no-restore --configuration Release
+        
+      - name: List directory tree
+        run: |
+          echo "PWD: $(pwd)"
+          ls -R .
+      - name: Run unit tests
+        run: dotnet test ./TestsRentABikeWebApp.csproj --no-build
+
+      - name: Publish WebApp
+        run: dotnet publish ./RentABikeWebApp.csproj \
+              --configuration Release \
+              --output ./publish
