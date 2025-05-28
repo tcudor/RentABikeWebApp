@@ -27,20 +27,21 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore main project
-        run: dotnet restore RentABikeWebApp/RentABikeWebApp.csproj
+      - name: Restore & Build application
+        working-directory: RentABikeWebApp
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
 
-      - name: Restore test project
-        run: dotnet restore TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
-
-      - name: Build main project
-        run: dotnet build RentABikeWebApp/RentABikeWebApp.csproj --no-restore --configuration Release
-
-      - name: Build test project
-        run: dotnet build TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
+      - name: Restore & Build tests
+        working-directory: TestsRentABikeWebApp
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
 
       - name: Run unit tests
-        run: dotnet test TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --verbosity normal
+        working-directory: TestsRentABikeWebApp
+        run: dotnet test --no-build --verbosity normal
 
       - name: Publish WebApp
         run: dotnet publish RentABikeWebApp/RentABikeWebApp.csproj \
