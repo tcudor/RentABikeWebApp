@@ -1,0 +1,41 @@
+name: CI RentABikeWebApp
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build-test-publish:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Run unit tests
+        run: dotnet test ./TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --verbosity normal
+
+      - name: Publish WebApp
+        run: dotnet publish ./RentABikeWebApp/RentABikeWebApp.csproj \
+              --configuration Release \
+              --output ./publish
+
+      - name: Upload publish artefact
+        uses: actions/upload-artifact@v3
+        with:
+          name: RentABikeWebApp-publish
+          path: ./publish
