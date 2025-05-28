@@ -45,4 +45,4 @@ jobs:
 
       - name: Publish WebApp
         working-directory: RentABikeWebApp
-        run: dotnet publish --configuration Release --output ../publish
+        run: dotnet publish --configuration Release --output RentABikeWebApp/publish
