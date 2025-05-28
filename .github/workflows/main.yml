@@ -13,8 +13,6 @@ jobs:
     steps:
       - name: Checkout application repo
         uses: actions/checkout@v3
-        with:
-          path: RentABikeWebApp
 
       - name: Checkout tests repo
         uses: actions/checkout@v3
@@ -28,23 +26,20 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore & Build application
-        working-directory: RentABikeWebApp
         run: |
-          dotnet restore
-          dotnet build --configuration Release
+          dotnet restore RentABikeWebApp.sln
+          dotnet build  RentABikeWebApp.sln --no-restore --configuration Release
 
       - name: Restore & Build tests
-        working-directory: TestsRentABikeWebApp
         run: |
-          dotnet restore
-          dotnet build --configuration Release
+          dotnet restore TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
+          dotnet build   TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
 
       - name: Run unit tests
-        working-directory: TestsRentABikeWebApp
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --verbosity normal
 
       - name: Publish WebApp
         run: dotnet publish RentABikeWebApp/RentABikeWebApp.csproj \
-             --configuration Release \
-             --output ./publish
+              --configuration Release \
+              --output ./publish
 
