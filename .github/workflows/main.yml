@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup .NET SDK
+      - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
@@ -34,8 +34,8 @@ jobs:
               --configuration Release \
               --output ./publish
 
-      - name: Upload publish artefact
-        uses: actions/upload-artifact@v3
+      - name: Upload publish artifact
+        uses: actions/upload-artifact@v2
         with:
           name: RentABikeWebApp-publish
           path: ./publish
