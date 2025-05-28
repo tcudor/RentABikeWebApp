@@ -47,8 +47,3 @@ jobs:
              --configuration Release \
              --output ./publish
 
-      - name: Upload publish artifact
-        uses: actions/upload-artifact@v3.1.2
-        with:
-          name: RentABikeWebApp-publish
-          path: ./publish
