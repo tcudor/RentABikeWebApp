@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: tcudor/TestsRentABikeWebApp
-          path: tests 
+          path: TestsRentABikeWebApp 
           
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
@@ -27,16 +27,16 @@ jobs:
       - name: Restore dependencies
         run: |
           dotnet restore RentABikeWebApp.sln
-          dotnet restore tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
+          dotnet restore TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
 
       - name: Build solution
         run: dotnet build RentABikeWebApp.sln --no-restore --configuration Release
 
       - name: Build test project
-        run: dotnet build tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
+        run: dotnet build TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
 
       - name: Run unit tests
-        run: dotnet test tests/TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --configuration Release --verbosity normal
+        run: dotnet test TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --configuration Release --verbosity normal
 
       - name: Publish WebApp
         run: dotnet publish RentABikeWebApp.csproj \
