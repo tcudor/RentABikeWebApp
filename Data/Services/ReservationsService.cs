@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using RentABikeWebApp.Data.Base;
 using RentABikeWebApp.Data.ViewModels;
 using RentABikeWebApp.Models;
@@ -26,43 +28,104 @@ namespace RentABikeWebApp.Data.Services
                 .FirstOrDefaultAsync(n => n.Id == id);
         }
 
-        public async Task<NewReservationDropdownsVM> GetNewReservationDropdownsValues()
-        {
-            var response = new NewReservationDropdownsVM()
-            {
-                Bikes=await _context.Bikes.OrderBy(n => n.Id).ToListAsync(),
-                Customers=await _context.Customers.OrderBy(n => n.Name).ToListAsync(),
-            };
-            return response;
-        }
 
-        public async Task<bool> IsBikeAvailableAsync(int BikeId, DateTime StartDate, DateTime EndDate, int? reservationIdToExclude = null)
+        public async Task<ReservationFormVM> GetReservationFormValuesAsync(int selectedBikeId, string? currentUserId, bool isAdmin, int? excludeReservationId = null)
         {
-            IQueryable<Reservation> reservationsQuery = _context.Reservations
-                .Where(r => r.BikeId == BikeId)
-                .Where(r => (r.StartDate <= StartDate && r.EndDate >= StartDate) || (r.StartDate <= EndDate && r.EndDate >= EndDate));
+            var bikes = await _context.Bikes.OrderBy(b => b.Id).ToListAsync();
+            if (!bikes.Any())
+                throw new InvalidOperationException("No bikes available in the system.");
 
-            if (reservationIdToExclude.HasValue)
+            if (!bikes.Any(b => b.Id == selectedBikeId))
             {
-                reservationsQuery = reservationsQuery.Where(r => r.Id != reservationIdToExclude);
+                selectedBikeId = bikes.First().Id;
             }
 
-            return await reservationsQuery.CountAsync() == 0;
-        }
+            List<Customer> customers = isAdmin
+                ? await _context.Customers.OrderBy(c => c.Name).ToListAsync()
+                : await _context.Customers
+                    .Where(c => c.UserId == currentUserId)
+                    .ToListAsync();
 
-        public async Task<IEnumerable<object>> GetActiveReservationsForBikeAsync(int BikeId)
-        {
-            var currentDate = DateTime.Now;
-            var reservations = await _context.Reservations
-                .Where(r => r.BikeId == BikeId && r.StartDate >= currentDate)
-                .ToListAsync();
+            var bikeItems = bikes
+                .Select(b => new SelectListItem
+                {
+                    Text = $"Bike {b.Id} - {b.Type}",
+                    Value = b.Id.ToString(),
+                    Selected = b.Id == selectedBikeId
+                })
+                .ToList();
 
-            return reservations.Select(r => new
+            var customerItems = customers
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Name ?? "",
+                    Value = c.Id.ToString(),
+                    Selected = false
+                })
+                .ToList();
+
+            var price = bikes.First(b => b.Id == selectedBikeId).PricePerHour;
+
+            var active = await GetActiveReservationsForBikeAsync(
+                selectedBikeId, excludeReservationId);
+
+            return new ReservationFormVM
             {
-                StartDate = r.StartDate.ToString("dd/MM/yyyy HH:mm"),
-                EndDate = r.EndDate.ToString("dd/MM/yyyy HH:mm")
-            });
+                SelectedBikeId = selectedBikeId,
+                SelectedCustomerId = customerItems.FirstOrDefault()?.Value is string v
+                                        ? int.Parse(v)
+                                        : (int?)null,
+                Bikes = bikeItems,
+                Customers = customerItems,
+                PricePerHour = price,
+                ActiveReservations = active,
+                Reservation = new Reservation
+                {
+                    BikeId = selectedBikeId,
+                    CustomerId = customerItems.FirstOrDefault() != null
+                                  ? int.Parse(customerItems.First().Value)
+                                  : 0
+                }
+            };
         }
 
+        public async Task<IEnumerable<ActiveReservationDto>> GetActiveReservationsForBikeAsync(int bikeId,int? reservationIdToExclude = null)
+        {
+            var now = DateTime.Now;
+            var query = _context.Reservations
+                .Where(r => r.BikeId == bikeId && r.EndDate > now);
+
+            if (reservationIdToExclude.HasValue)
+                query = query.Where(r => r.Id != reservationIdToExclude.Value);
+
+            return await query
+                .OrderBy(r => r.StartDate)
+                .Select(r => new ActiveReservationDto
+                {
+                    StartDate = r.StartDate.ToString("dd/MM/yyyy HH:mm"),
+                    EndDate = r.EndDate.ToString("dd/MM/yyyy HH:mm")
+                })
+                .ToListAsync();
+        }
+
+        public async Task<bool> IsBikeAvailableAsync(int bikeId, DateTime desiredStart, DateTime desiredEnd, int? reservationIdToExclude = null)
+        {
+            var overlaps = _context.Reservations
+                .Where(r => r.BikeId == bikeId
+                         && r.StartDate < desiredEnd
+                         && r.EndDate > desiredStart);
+
+            if (reservationIdToExclude.HasValue)
+                overlaps = overlaps.Where(r => r.Id != reservationIdToExclude);
+
+            return !await overlaps.AnyAsync();
+        }
+
+        public async Task<decimal> GetBikePriceAsync(int bikeId)
+        {
+            var bike = await _context.Bikes.FindAsync(bikeId)
+                       ?? throw new KeyNotFoundException($"Bike {bikeId} not found");
+            return bike.PricePerHour;
+        }
     }
 }

@@ -6,8 +6,22 @@ namespace RentABikeWebApp.Data.Services
 {
     public interface IReservationsService : IEntityBaseRepository<Reservation>
     {
-        Task<IEnumerable<object>> GetActiveReservationsForBikeAsync(int BikeId);
-        Task<NewReservationDropdownsVM> GetNewReservationDropdownsValues();
-        Task<bool> IsBikeAvailableAsync(int BikeId, DateTime StartDate, DateTime EndDate, int? reservationIdToExclude = null);
+        Task<ReservationFormVM> GetReservationFormValuesAsync(
+                int selectedBikeId,
+                string? currentUserId,
+                bool isAdmin,
+                int? excludeReservationId = null);
+
+        Task<IEnumerable<ActiveReservationDto>> GetActiveReservationsForBikeAsync(
+            int bikeId,
+            int? reservationIdToExclude = null);
+
+        Task<bool> IsBikeAvailableAsync(
+            int bikeId,
+            DateTime startDate,
+            DateTime endDate,
+            int? reservationIdToExclude = null);
+
+        Task<decimal> GetBikePriceAsync(int bikeId);
     }
 }

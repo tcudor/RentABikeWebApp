@@ -1,84 +1,105 @@
-﻿@model RentABikeWebApp.Models.Reservation
+﻿@model RentABikeWebApp.Data.ViewModels.ReservationFormVM
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Reservation";
+    var isClient = User.Identity!.IsAuthenticated && !User.IsInRole("Admin");
+    DateTime min = DateTime.MinValue;
+    string startVal = Model.Reservation.StartDate > min
+        ? Model.Reservation.StartDate.ToString("yyyy-MM-ddTHH:mm")
+        : "";
+    string endVal = Model.Reservation.EndDate > min
+        ? Model.Reservation.EndDate.ToString("yyyy-MM-ddTHH:mm")
+        : "";
 }
-<div class="container">
-    <h1>Create</h1>
 
-    <h4>Reservation</h4>
-    <hr />
-    <div class="row">
-        <div class="col-md-4">
-            <form asp-action="Create">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
-                    <label asp-for="StartDate" class="control-label"></label>
-                    <input asp-for="StartDate" class="form-control" />
-                    <span asp-validation-for="StartDate" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="EndDate" class="control-label"></label>
-                    <input asp-for="EndDate" class="form-control" />
-                    <span asp-validation-for="EndDate" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="BikeId" class="control-label"></label>
-                    <select asp-for="BikeId" class="form-control" asp-items="ViewBag.Bikes"></select>
-                </div>
-                <div class="form-group">
-                    <label for="PricePerHour" class="control-label">Price Per Hour</label>
-                    <input id="PricePerHour" class="form-control" value="@ViewBag.PricePerHour" readonly />
-                </div>
-                <div class="form-group">
-                    <label asp-for="TotalCost" class="control-label"></label>
-                    <input asp-for="TotalCost" class="form-control" />
-                    <span asp-validation-for="TotalCost" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="CustomerId" class="control-label"></label>
-                    <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers"></select>
-                </div>
-                <div class="form-group" style="margin-top:1%;">
-                    <input type="submit" value="Create" class="btn btn-primary" /> |
-                    <a asp-action="Home" asp-controller="Bikes" class="btn btn-warning">Back to List</a>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6" style="margin-left:10%">
-                <h2>Active Reservations</h2>
-                <ol id="reservationList">
-                    @foreach (var reservation in ViewBag.ActiveReservations)
-                    {
-                        <li>Start Date: @reservation.StartDate - End Date: @reservation.EndDate</li>
-                    }
+<div class="container py-4">
+    <h1>@ViewData["Title"]</h1>
 
-                </ol>
-            </div>
-
-        </div>
+    <form asp-action="Create" method="post">
         @if (!ViewData.ModelState.IsValid)
         {
-            <div class="alert alert-danger" role="alert" style="margin-top:2%">
-                @if (ViewData.ModelState.ContainsKey("BikeAvailability"))
-                {
-                    <p>@Html.ValidationMessage("BikeAvailability")</p>
-                }
-                else
-                {
-                    <ul>
-                        @foreach (var key in ViewData.ModelState.Keys)
-                        {
-                            foreach (var error in ViewData.ModelState[key].Errors)
-                            {
-                                <li>@error.ErrorMessage</li>
-                            }
-                        }
-                    </ul>
-                }
-            </div>
+            <div asp-validation-summary="All" class="alert alert-danger mb-3"></div>
         }
-    </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Reservation.StartDate"></label>
+            <input asp-for="Reservation.StartDate" type="datetime-local" class="form-control" id="StartDate" value="@startVal" />
+            <span asp-validation-for="Reservation.StartDate" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Reservation.EndDate"></label>
+            <input asp-for="Reservation.EndDate"
+                   type="datetime-local"
+                   class="form-control"
+                   id="EndDate"
+                   value="@endVal" />
+            <span asp-validation-for="Reservation.EndDate" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mb-3">
+            <label asp-for="Reservation.BikeId"></label>
+            <select asp-for="Reservation.BikeId"
+                    class="form-control"
+                    asp-items="Model.Bikes"
+                    id="BikeId"></select>
+        </div>
+
+
+        <div class="form-row row mb-4">
+            <div class="col">
+                <label>Price Per Hour</label>
+                <input readonly class="form-control" id="PricePerHour" value="@Model.PricePerHour" />
+            </div>
+            <div class="col">
+
+        <div class="form-group">
+            <label asp-for="Reservation.TotalCost"></label>
+            <input id="TotalCost" asp-for="Reservation.TotalCost" class="form-control" readonly />
+            <span asp-validation-for="Reservation.TotalCost" class="text-danger"></span>
+        </div>
+            </div>
+        </div>
+
+
+        <div class="form-group mb-4">
+            <label asp-for="Reservation.CustomerId"></label>
+            @if (isClient)
+            {
+                <input type="hidden" asp-for="Reservation.CustomerId" />
+                
+                 var first = Model.Customers.FirstOrDefault();
+                
+                <div class="form-control-plaintext">@first?.Text</div>
+            }
+            else
+            {
+                <select asp-for="Reservation.CustomerId"
+                        class="form-control"
+                        asp-items="Model.Customers"></select>
+            }
+        </div>
+
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-secondary ms-2">Back</a>
+    </form>
+
+    <hr />
+
+    <h4>Active Reservations</h4>
+    <ul id="reservationList">
+        @if (!Model.ActiveReservations.Any())
+        {
+            <li class="text-muted">No future reservations.</li>
+        }
+        else
+        {
+            foreach (var r in Model.ActiveReservations)
+            {
+                <li>@r.StartDate – @r.EndDate</li>
+            }
+        }
+    </ul>
 </div>
 
 @section Scripts {
@@ -87,17 +108,17 @@
     }
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var totalCostInput = document.getElementById("TotalCost");
-            var pricePerHourInput = document.getElementById("PricePerHour");
+        document.addEventListener("DOMContentLoaded", () => {
+            const bikeSel = document.getElementById("BikeId");
             var startDateInput = document.getElementById("StartDate");
             var endDateInput = document.getElementById("EndDate");
+            var totalCostInput = document.getElementById("TotalCost");
+            var pricePerHourInput = document.getElementById("PricePerHour");
+            const listEl = document.getElementById("reservationList");
 
-            // Adaugă evenimente pentru schimbarea StartDate și EndDate
-            startDateInput.addEventListener("change", updateTotalCost);
-            endDateInput.addEventListener("change", updateTotalCost);
 
-            function updateTotalCost() {
+
+        function updateTotalCost() {
                 var pricePerHour = pricePerHourInput.value;
                 var startDate = new Date(startDateInput.value);
                 var endDate = new Date(endDateInput.value);
@@ -105,34 +126,35 @@
                 var durationHours = differenceMilliseconds / (1000 * 60 * 60);
 
                 if (!isNaN(pricePerHour) && !isNaN(durationHours)) {
+                    console.log(pricePerHour);
+                    console.log(durationHours);
                     var totalCost = pricePerHour * durationHours;
                     totalCostInput.value = totalCost.toFixed(2);
                 }
             }
 
-            // Restul codului pentru fetch-ul datelor în cazul schimbării BikeId
-            document.getElementById("BikeId").addEventListener("change", function () {
-                var selectedBikeId = this.value;
-                fetch('/Reservations/GetData?BikeId=' + selectedBikeId)
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById("PricePerHour").value = data.pricePerHour;
-                        var activeReservations = data.activeReservations;
-                        var reservationsList = document.getElementById("reservationList");
-                        reservationsList.innerHTML = "";
-                        activeReservations.forEach(reservation => {
-                            var listItem = document.createElement("li");
-                            listItem.textContent = "Start Date: " + reservation.startDate + "- End Date: " + reservation.endDate;
-                            reservationsList.appendChild(listItem);
-                        });
-                        updateTotalCost(); // Apelăm updateTotalCost() după actualizarea datelor
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            });
+          function refreshBike() {
+            fetch(`/Reservations/GetData?BikeId=${bikeSel.value}`)
+              .then(r => r.json())
+              .then(data => {
+                pricePerHourInput.value = data.pricePerHour;
+                listEl.innerHTML = "";
+                data.activeReservations.forEach(x => {
+                  const li = document.createElement("li");
+                  li.textContent = `${x.startDate} – ${x.endDate}`;
+                  listEl.appendChild(li);
+                });
+                updateTotalCost();
+              })
+              .catch(console.error);
+          }
+
+          bikeSel.addEventListener("change", refreshBike);
+          startDateInput.addEventListener("change", updateTotalCost);
+          endDateInput.addEventListener("change", updateTotalCost);
+
+          refreshBike();
         });
 
     </script>
 }
-
