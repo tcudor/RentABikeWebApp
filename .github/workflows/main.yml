@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout application repo
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Checkout tests repo
         uses: actions/checkout@v3
@@ -20,17 +19,16 @@ jobs:
           repository: tcudor/TestsRentABikeWebApp
           path: TestsRentABikeWebApp
 
-      - name: Setup .NET 8 SDK
-        uses: actions/setup-dotnet@v3
+      - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore & Build application
+      - name: Restore & build application
         run: |
-          dotnet restore RentABikeWebApp.sln
-          dotnet build  RentABikeWebApp.sln --no-restore --configuration Release
+          dotnet restore RentABikeWebApp.csproj
+          dotnet build   RentABikeWebApp.csproj --no-restore --configuration Release
 
-      - name: Restore & Build tests
+      - name: Restore & build tests
         run: |
           dotnet restore TestsRentABikeWebApp/TestsRentABikeWebApp.csproj
           dotnet build   TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-restore --configuration Release
@@ -39,7 +37,4 @@ jobs:
         run: dotnet test TestsRentABikeWebApp/TestsRentABikeWebApp.csproj --no-build --verbosity normal
 
       - name: Publish WebApp
-        run: dotnet publish RentABikeWebApp/RentABikeWebApp.csproj \
-              --configuration Release \
-              --output ./publish
-
+        run: dotnet publish RentABikeWebApp.csproj --configuration Release --output ./publish
